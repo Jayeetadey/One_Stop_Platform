@@ -9,7 +9,7 @@ const FEATURES = [
     bgColor: "#8083ff20",
     title: "Ask Once, Save Hours",
     desc: "One clean prompt automatically dispatches to 5 frontier LLMs concurrently. Zero repetitive copy-pasting across browser windows.",
-    badge: "Saves up to 4.2 hours per research sprint",
+    badge: "Saves hours per research sprint",
     badgeIcon: "check_circle",
     badgeColor: "#61dbb4",
     span: "md:col-span-3",
@@ -20,7 +20,7 @@ const FEATURES = [
     bgColor: "#03b5d320",
     title: "Side-by-Side Comparison",
     desc: "Instantly spot hallucinations, cross-verify numerical facts, and contrast coding patterns side-by-side with synchronized viewport scrolling.",
-    badge: "99.8% cross-verification accuracy",
+    badge: "Cross-verification accuracy",
     badgeIcon: "verified",
     badgeColor: "#61dbb4",
     span: "md:col-span-3",
@@ -64,14 +64,14 @@ export default function FeaturesGrid() {
         className="flex flex-col items-center text-center max-w-2xl mx-auto gap-3"
       >
         <span className="font-inter text-label-xs text-[#c0c1ff] font-semibold uppercase tracking-wider">
-          Unrivaled Synthesis
+          Multi-Model Intelligence
         </span>
         <h2 className="font-plus-jakarta text-headline-lg text-[#dfe2ee]">
           Why Compare AI Models?
         </h2>
         <p className="font-inter text-body-md text-[#c7c4d7]">
-          No single neural architecture holds all the answers. Compare nuances,
-          avoid hallucinations, and synthesize truth from competing perspectives.
+          No single model holds all the answers. Compare nuances,
+          avoid hallucinations, and get the most complete answer from top AI models.
         </p>
       </motion.div>
 
@@ -84,7 +84,7 @@ export default function FeaturesGrid() {
             viewport={{ once: true }}
             transition={{ delay: i * 0.1, duration: 0.5 }}
             whileHover={{ y: -4, transition: { duration: 0.2 } }}
-            className={`${f.span} bg-[#1c2028] rounded-2xl p-6 flex flex-col justify-between shadow-sm cursor-default`}
+            className={`${f.span} bg-[#1c2028] rounded-2xl p-6 flex flex-col justify-between shadow-sm cursor-default border border-[#464554]/20`}
           >
             <div>
               <div
@@ -101,14 +101,17 @@ export default function FeaturesGrid() {
               <h3 className="font-plus-jakarta text-headline-sm text-[#dfe2ee] mb-2">
                 {f.title}
               </h3>
-              <p className="font-inter text-body-md text-[#c7c4d7]">{f.desc}</p>
+              <p className="font-inter text-body-sm text-[#c7c4d7] leading-relaxed">
+                {f.desc}
+              </p>
             </div>
+
             {f.badge && (
-              <div className="mt-5 pt-4 flex items-center gap-2 text-[#908fa0] font-inter text-label-xs">
-                <span
-                  className="material-symbols-outlined text-[16px]"
-                  style={{ color: f.badgeColor }}
-                >
+              <div
+                className="inline-flex items-center gap-1.5 pt-4 font-inter text-label-xs font-semibold"
+                style={{ color: f.badgeColor }}
+              >
+                <span className="material-symbols-outlined text-[16px]">
                   {f.badgeIcon}
                 </span>
                 <span>{f.badge}</span>

@@ -3,7 +3,12 @@
 import { motion } from "framer-motion";
 import Link from "next/link";
 
-export default function CTABanner() {
+interface CTABannerProps {
+  onOpenSignIn?: () => void;
+  isAuthenticated?: boolean;
+}
+
+export default function CTABanner({ onOpenSignIn, isAuthenticated }: CTABannerProps) {
   return (
     <section className="w-full py-12 flex justify-center">
       <motion.div
@@ -11,7 +16,7 @@ export default function CTABanner() {
         whileInView={{ opacity: 1, y: 0 }}
         viewport={{ once: true }}
         transition={{ duration: 0.6 }}
-        className="w-full max-w-4xl bg-gradient-to-br from-[#1c2028] to-[#262a33] rounded-3xl p-10 md:p-14 shadow-xl flex flex-col items-center text-center gap-6 relative overflow-hidden"
+        className="w-full max-w-4xl bg-gradient-to-br from-[#1c2028] to-[#262a33] rounded-3xl p-10 md:p-14 shadow-xl flex flex-col items-center text-center gap-6 relative overflow-hidden border border-[#464554]/30"
       >
         {/* Decorative aura */}
         <div className="absolute -bottom-16 w-80 h-80 bg-[#c0c1ff]/20 rounded-full blur-3xl pointer-events-none" />
@@ -26,28 +31,36 @@ export default function CTABanner() {
           ))}
         </div>
 
-        <h2 className="relative font-plus-jakarta text-headline-lg text-[#dfe2ee] max-w-xl">
+        <h2 className="relative font-plus-jakarta text-headline-lg text-[#dfe2ee] max-w-xl text-2xl sm:text-3xl font-bold">
           The Ultimate AI Benchmarking &amp; Productivity Workspace
         </h2>
 
         <p className="relative font-inter text-body-md text-[#c7c4d7] max-w-lg">
-          &ldquo;One Stop Platform eliminated context switching for our ML
-          research lab. Finding the right response takes seconds now instead of
-          half an hour.&rdquo;
+          Ask once, compare responses across top AI models simultaneously, and pick the best answer in seconds.
         </p>
 
         {/* CTA */}
-        <div className="relative flex flex-col sm:flex-row items-center gap-4 mt-4">
-          <Link
-            href="/dashboard"
-            className="px-8 py-4 rounded-full bg-[#8083ff] text-[#07006c] font-plus-jakarta text-headline-sm shadow-xl hover:bg-[#c0c1ff] transition-all active:scale-95"
-          >
-            Start Free Trial — No Credit Card Required
-          </Link>
+        <div className="relative flex flex-col sm:flex-row items-center gap-4 mt-2">
+          {isAuthenticated ? (
+            <Link
+              href="/dashboard"
+              className="px-8 py-4 rounded-full bg-[#8083ff] text-[#07006c] font-plus-jakarta text-headline-sm shadow-xl hover:bg-[#c0c1ff] transition-all active:scale-95 font-semibold"
+            >
+              Open Your Workspace
+            </Link>
+          ) : (
+            <button
+              type="button"
+              onClick={onOpenSignIn}
+              className="px-8 py-4 rounded-full bg-[#8083ff] text-[#07006c] font-plus-jakarta text-headline-sm shadow-xl hover:bg-[#c0c1ff] transition-all active:scale-95 cursor-pointer font-bold"
+            >
+              Start Free Trial — No Credit Card Required
+            </button>
+          )}
         </div>
 
         <span className="relative font-inter text-label-xs text-[#908fa0]">
-          Instant access • Free tier includes 100 multi-model queries/mo
+          Instant access &middot; Free passwordless email verification
         </span>
       </motion.div>
     </section>

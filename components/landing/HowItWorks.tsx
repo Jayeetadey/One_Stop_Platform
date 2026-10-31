@@ -56,45 +56,40 @@ export default function HowItWorks() {
           How It Works
         </h2>
         <p className="font-inter text-body-md text-[#c7c4d7]">
-          Four frictionless steps from query to definitive answer.
+          Four simple steps from question to definitive answer.
         </p>
       </motion.div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 max-w-5xl w-full">
-        {STEPS.map((step, i) => (
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 max-w-5xl mx-auto w-full px-2">
+        {STEPS.map((s, i) => (
           <motion.div
-            key={step.num}
-            initial={{ opacity: 0, x: -20 }}
-            whileInView={{ opacity: 1, x: 0 }}
+            key={s.num}
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            transition={{ delay: i * 0.12, duration: 0.5 }}
-            whileHover={{ scale: 1.02, transition: { duration: 0.2 } }}
-            className="bg-[#262a33] rounded-2xl p-6 flex flex-col gap-4 shadow-sm relative"
+            transition={{ delay: i * 0.1, duration: 0.4 }}
+            className="bg-[#1c2028] rounded-2xl p-6 flex flex-col justify-between shadow-sm border border-[#464554]/20"
           >
-            {/* Connector line for desktop */}
-            {i < STEPS.length - 1 && (
-              <div className="hidden lg:block absolute -right-3 top-1/2 w-6 h-px bg-[#464554] z-10" />
-            )}
-            <div className="flex items-center justify-between">
-              <span
-                className="font-jetbrains text-code-sm font-bold"
-                style={{ color: step.numColor }}
-              >
-                {step.num}
-              </span>
-              <span
-                className="material-symbols-outlined text-[24px]"
-                style={{ color: step.iconColor }}
-              >
-                {step.icon}
-              </span>
-            </div>
             <div>
+              <div className="flex items-center justify-between mb-4">
+                <span
+                  className="font-jetbrains text-display-md font-bold text-2xl"
+                  style={{ color: s.numColor }}
+                >
+                  {s.num}
+                </span>
+                <span
+                  className="material-symbols-outlined text-[20px]"
+                  style={{ color: s.iconColor }}
+                >
+                  {s.icon}
+                </span>
+              </div>
               <h3 className="font-plus-jakarta text-headline-sm text-[#dfe2ee] mb-2">
-                {step.title}
+                {s.title}
               </h3>
-              <p className="font-inter text-body-sm text-[#c7c4d7]">
-                {step.desc}
+              <p className="font-inter text-body-sm text-[#c7c4d7] leading-relaxed">
+                {s.desc}
               </p>
             </div>
           </motion.div>

@@ -1,7 +1,6 @@
 "use client";
 
 import type { Variants } from "framer-motion";
-
 import { motion } from "framer-motion";
 import Link from "next/link";
 
@@ -47,7 +46,12 @@ const fadeUp: Variants = {
   show: { opacity: 1, y: 0, transition: { duration: 0.55, ease: "easeOut" as const } },
 };
 
-export default function HeroSection() {
+interface HeroSectionProps {
+  onOpenSignIn?: () => void;
+  isAuthenticated?: boolean;
+}
+
+export default function HeroSection({ onOpenSignIn, isAuthenticated }: HeroSectionProps) {
   return (
     <section
       className="relative w-full flex flex-col items-center text-center px-4 py-16"
@@ -79,7 +83,7 @@ export default function HeroSection() {
           variants={fadeUp}
           className="font-plus-jakarta text-headline-sm text-[#4cd7f6] mb-2 tracking-tight flex items-center gap-2"
         >
-          <span>Good morning, Alex</span>
+          <span>Good morning</span>
           <span className="inline-block animate-bounce">👋</span>
         </motion.div>
 
@@ -110,13 +114,24 @@ export default function HeroSection() {
           variants={fadeUp}
           className="flex flex-wrap items-center justify-center gap-4 mb-12"
         >
-          <Link
-            href="/dashboard"
-            className="px-8 py-3.5 rounded-full bg-[#8083ff] text-[#07006c] font-plus-jakarta text-headline-sm shadow-xl hover:bg-[#c0c1ff] transition-all active:scale-95 flex items-center gap-2"
-          >
-            <span className="material-symbols-outlined">bolt</span>
-            <span>Try One Stop Platform Free</span>
-          </Link>
+          {isAuthenticated ? (
+            <Link
+              href="/dashboard"
+              className="px-8 py-3.5 rounded-full bg-[#8083ff] text-[#07006c] font-plus-jakarta text-headline-sm shadow-xl hover:bg-[#c0c1ff] transition-all active:scale-95 flex items-center gap-2"
+            >
+              <span className="material-symbols-outlined">bolt</span>
+              <span>Open Dashboard</span>
+            </Link>
+          ) : (
+            <button
+              type="button"
+              onClick={onOpenSignIn}
+              className="px-8 py-3.5 rounded-full bg-[#8083ff] text-[#07006c] font-plus-jakarta text-headline-sm shadow-xl hover:bg-[#c0c1ff] transition-all active:scale-95 flex items-center gap-2 cursor-pointer font-bold"
+            >
+              <span className="material-symbols-outlined">bolt</span>
+              <span>Try One Stop Platform Free</span>
+            </button>
+          )}
           <button className="px-8 py-3.5 rounded-full bg-[#262a33] text-[#dfe2ee] font-plus-jakarta text-headline-sm shadow-sm hover:bg-[#353942] transition-colors flex items-center gap-2">
             <span className="material-symbols-outlined">play_circle</span>
             <span>Watch 60s Demo</span>
@@ -143,7 +158,7 @@ export default function HeroSection() {
             ))}
           </div>
           <span className="font-inter text-body-sm text-[#908fa0]">
-            Trusted by 45,000+ researchers, engineers, and product teams
+            Trusted by researchers, engineers, and product teams
           </span>
         </motion.div>
 

@@ -32,7 +32,7 @@ export default function Sidebar() {
       {/* New Chat */}
       <div className="p-3">
         <Link
-          href="/"
+          href="/dashboard"
           className="w-full flex items-center gap-2 px-3 py-2.5 rounded-lg hover:bg-[#1c2028] text-[#dfe2ee] font-inter text-body-md transition-colors group"
         >
           <span className="material-symbols-outlined text-lg">edit_square</span>

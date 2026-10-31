@@ -1,7 +1,9 @@
 "use client";
 
 import React, { useState, useRef, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
+import { clearAuthUser, getAuthUser, performLogout } from "@/lib/auth";
 import {
   Sparkles,
   Send,
@@ -30,6 +32,7 @@ import {
   Settings,
   LogOut,
   User,
+  Mail,
   X,
   Key,
   Trash2,
@@ -364,6 +367,7 @@ const SUGGESTIONS = [
 ];
 
 export default function ChatGPTInterface() {
+  const router = useRouter();
   const [conversations, setConversations] = useState<Conversation[]>(INITIAL_CONVERSATIONS);
   const [currentId, setCurrentId] = useState<string>("1");
   const [sidebarOpen, setSidebarOpen] = useState<boolean>(true);
@@ -382,12 +386,68 @@ export default function ChatGPTInterface() {
   const [isUpgradeOpen, setIsUpgradeOpen] = useState(false);
   const [isLogOutOpen, setIsLogOutOpen] = useState(false);
   const [isLoggedOut, setIsLoggedOut] = useState(false);
-  const [settingsTab, setSettingsTab] = useState<"general" | "models" | "account">("general");
-  const [userName, setUserName] = useState("Ahana");
-  const [userEmail, setUserEmail] = useState("ahana@onestop.ai");
+  const [settingsTab, setSettingsTab] = useState<"general" | "models" | "account" | "support">("general");
+  const [userName, setUserName] = useState("User");
+  const [userEmail, setUserEmail] = useState("user@onestop.ai");
   const [userPlan, setUserPlan] = useState<"Free" | "Pro">("Pro");
   const [themeMode, setThemeMode] = useState<"dark" | "light" | "system">("dark");
   const [systemIsDark, setSystemIsDark] = useState(true);
+  const [feedbackMessage, setFeedbackMessage] = useState("");
+  const [feedbackSending, setFeedbackSending] = useState(false);
+  const [feedbackStatus, setFeedbackStatus] = useState<{ ok: boolean; message: string } | null>(null);
+  const [smtpStatus, setSmtpStatus] = useState<"idle" | "checking" | "ok" | "error">("idle");
+
+  const handleSendFeedback = async () => {
+    if (!feedbackMessage.trim()) return;
+    setFeedbackSending(true);
+    setFeedbackStatus(null);
+    try {
+      const res = await fetch("/api/email/contact", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name: userName,
+          email: userEmail,
+          message: feedbackMessage.trim(),
+        }),
+      });
+      const data = await res.json();
+      if (data.success) {
+        setFeedbackStatus({ ok: true, message: data.message || "Feedback sent successfully!" });
+        setFeedbackMessage("");
+      } else {
+        setFeedbackStatus({ ok: false, message: data.error || "Failed to send message." });
+      }
+    } catch {
+      setFeedbackStatus({ ok: false, message: "Network error. Please try again." });
+    } finally {
+      setFeedbackSending(false);
+    }
+  };
+
+  const handleTestSmtp = async () => {
+    setSmtpStatus("checking");
+    try {
+      const res = await fetch("/api/email/verify");
+      const data = await res.json();
+      if (data.ok) {
+        setSmtpStatus("ok");
+      } else {
+        setSmtpStatus("error");
+      }
+    } catch {
+      setSmtpStatus("error");
+    }
+  };
+
+  // Hydrate user info from auth state
+  useEffect(() => {
+    const authUser = getAuthUser();
+    if (authUser) {
+      setUserName(authUser.name);
+      setUserEmail(authUser.email);
+    }
+  }, []);
 
   useEffect(() => {
     if (typeof window !== "undefined") {
@@ -1854,6 +1914,18 @@ Build cleanly, test thoroughly, and ship.`,
                     <User className="w-3.5 h-3.5" />
                     <span>Account</span>
                   </button>
+                  <button
+                    type="button"
+                    onClick={() => setSettingsTab("support")}
+                    className={`w-full flex items-center gap-2 px-3 py-2 rounded-lg text-xs font-medium transition-colors cursor-pointer ${
+                      settingsTab === "support"
+                        ? (isDark ? "bg-[#262626] text-white shadow-sm" : "bg-[#ffffff] text-black shadow-sm border border-[#e0e0e0]")
+                        : (isDark ? "text-[#8e8e8e] hover:bg-[#202020] hover:text-[#ececec]" : "text-[#666] hover:bg-[#eeeeee] hover:text-black")
+                    }`}
+                  >
+                    <Mail className="w-3.5 h-3.5" />
+                    <span>Feedback & Support</span>
+                  </button>
                 </div>
                 <div className={`px-3 py-2 text-[11px] ${isDark ? "text-[#666]" : "text-[#999]"}`}>OneStop AI v0.1.0</div>
               </div>
@@ -1869,7 +1941,9 @@ Build cleanly, test thoroughly, and ship.`,
                         ? "General Settings"
                         : settingsTab === "models"
                         ? "API Keys & Frontier Engines"
-                        : "Account & Preferences"}
+                        : settingsTab === "account"
+                        ? "Account & Preferences"
+                        : "Feedback & Support"}
                     </h4>
                     <button
                       type="button"
@@ -2067,6 +2141,64 @@ Build cleanly, test thoroughly, and ship.`,
                       </div>
                     </div>
                   )}
+
+                  {/* Feedback & Support Tab */}
+                  {settingsTab === "support" && (
+                    <div className="space-y-4 text-xs">
+                      <div>
+                        <div className={`font-semibold text-sm ${isDark ? "text-white" : "text-neutral-900"}`}>Send Feedback or Contact Support</div>
+                        <div className={`text-xs ${isDark ? "text-[#8e8e8e]" : "text-neutral-500"}`}>Your message will be sent directly via our verified Gmail SMTP gateway.</div>
+                      </div>
+
+                      <div className="space-y-2">
+                        <textarea
+                          rows={4}
+                          value={feedbackMessage}
+                          onChange={(e) => setFeedbackMessage(e.target.value)}
+                          placeholder="Have a question, suggestion, or bug report? Type your message here..."
+                          className={`w-full border rounded-xl p-3 outline-none resize-none focus:border-emerald-500 transition-colors ${
+                            isDark ? "bg-[#2a2a2a] border-[#3e3e3e] text-white placeholder-[#777]" : "bg-[#f5f5f5] border-[#d8d8d8] text-black placeholder-[#999]"
+                          }`}
+                        />
+                        <div className="flex items-center justify-between">
+                          <button
+                            type="button"
+                            disabled={feedbackSending || !feedbackMessage.trim()}
+                            onClick={handleSendFeedback}
+                            className="px-4 py-2 rounded-xl bg-gradient-to-r from-[#8083ff] to-[#c0c1ff] text-[#07006c] font-semibold text-xs transition-all disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer flex items-center gap-1.5"
+                          >
+                            <Send className="w-3.5 h-3.5" />
+                            <span>{feedbackSending ? "Sending..." : "Send Message"}</span>
+                          </button>
+                          <button
+                            type="button"
+                            onClick={handleTestSmtp}
+                            className={`px-3 py-1.5 rounded-lg border text-[11px] font-medium transition-colors cursor-pointer flex items-center gap-1.5 ${
+                              smtpStatus === "ok"
+                                ? "border-emerald-500/50 text-emerald-400 bg-emerald-500/10"
+                                : smtpStatus === "error"
+                                ? "border-rose-500/50 text-rose-400 bg-rose-500/10"
+                                : (isDark ? "border-[#333] text-[#aaa] hover:bg-[#252525]" : "border-[#ddd] text-[#555] hover:bg-[#eee]")
+                            }`}
+                          >
+                            <span className={`w-2 h-2 rounded-full ${
+                              smtpStatus === "ok" ? "bg-emerald-500" : smtpStatus === "error" ? "bg-rose-500" : "bg-neutral-500"
+                            }`} />
+                            <span>{smtpStatus === "checking" ? "Testing SMTP..." : smtpStatus === "ok" ? "SMTP Connected" : smtpStatus === "error" ? "SMTP Failed" : "Test SMTP Connection"}</span>
+                          </button>
+                        </div>
+                      </div>
+
+                      {feedbackStatus && (
+                        <div className={`p-3 rounded-xl text-xs flex items-center gap-2 ${
+                          feedbackStatus.ok ? "bg-emerald-500/10 text-emerald-400 border border-emerald-500/20" : "bg-rose-500/10 text-rose-400 border border-rose-500/20"
+                        }`}>
+                          <Check className="w-4 h-4 shrink-0" />
+                          <span>{feedbackStatus.message}</span>
+                        </div>
+                      )}
+                    </div>
+                  )}
                 </div>
 
                 <div className={`flex justify-end pt-4 border-t ${isDark ? "border-[#2d2d2d]" : "border-[#e5e5e5]"}`}>
@@ -2124,10 +2256,10 @@ Build cleanly, test thoroughly, and ship.`,
                 </button>
                 <button
                   type="button"
-                  onClick={() => {
-                    setIsLoggedOut(true);
+                  onClick={async () => {
+                    await performLogout();
                     setIsLogOutOpen(false);
-                    triggerToast("Logged out successfully");
+                    router.push("/");
                   }}
                   className="px-3.5 py-1.5 rounded-lg bg-rose-600 hover:bg-rose-500 text-xs font-semibold text-white transition-colors cursor-pointer shadow-sm"
                 >

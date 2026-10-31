@@ -3,7 +3,12 @@
 import Link from "next/link";
 import { motion } from "framer-motion";
 
-export default function LandingNav() {
+interface LandingNavProps {
+  onOpenSignIn?: () => void;
+  isAuthenticated?: boolean;
+}
+
+export default function LandingNav({ onOpenSignIn, isAuthenticated }: LandingNavProps) {
   return (
     <motion.header
       initial={{ opacity: 0, y: -20 }}
@@ -33,18 +38,37 @@ export default function LandingNav() {
       </nav>
 
       <div className="flex items-center gap-3">
-        <button className="hidden sm:inline-flex px-4 py-1.5 rounded-full bg-[#31353e]/50 text-[#c7c4d7] hover:text-[#dfe2ee] font-inter text-label-md transition-colors">
-          Sign In
-        </button>
-        <Link
-          href="/dashboard"
-          className="px-5 py-2 rounded-full bg-[#8083ff] text-[#07006c] font-inter text-label-md font-semibold shadow-md hover:bg-[#c0c1ff] transition-all active:scale-95 flex items-center gap-1.5"
-        >
-          <span>Get Started Free</span>
-          <span className="material-symbols-outlined text-[16px]">
-            arrow_forward
-          </span>
-        </Link>
+        {isAuthenticated ? (
+          <Link
+            href="/dashboard"
+            className="px-5 py-2 rounded-full bg-[#8083ff] text-[#07006c] font-inter text-label-md font-semibold shadow-md hover:bg-[#c0c1ff] transition-all active:scale-95 flex items-center gap-1.5"
+          >
+            <span>Open Dashboard</span>
+            <span className="material-symbols-outlined text-[16px]">
+              arrow_forward
+            </span>
+          </Link>
+        ) : (
+          <>
+            <button
+              type="button"
+              onClick={onOpenSignIn}
+              className="inline-flex px-4 py-1.5 rounded-full bg-[#31353e]/50 hover:bg-[#31353e] text-[#c7c4d7] hover:text-[#dfe2ee] font-inter text-label-md transition-colors cursor-pointer"
+            >
+              Sign In
+            </button>
+            <button
+              type="button"
+              onClick={onOpenSignIn}
+              className="px-5 py-2 rounded-full bg-[#8083ff] text-[#07006c] font-inter text-label-md font-semibold shadow-md hover:bg-[#c0c1ff] transition-all active:scale-95 flex items-center gap-1.5 cursor-pointer"
+            >
+              <span>Get Started Free</span>
+              <span className="material-symbols-outlined text-[16px]">
+                arrow_forward
+              </span>
+            </button>
+          </>
+        )}
       </div>
     </motion.header>
   );
